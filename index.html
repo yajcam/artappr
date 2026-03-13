@@ -1,0 +1,2315 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>ART APP 1-300</title>
+    
+
+  </head>
+    
+  <body>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QQQ2 ART APP - Interactive Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-glass: rgba(248, 249, 250, 0.85);
+            --bg-glass-hover: rgba(240, 242, 245, 0.95);
+            --text-primary: #1a1a2e;
+            --text-secondary: #4a4a68;
+            --accent-correct: #10b981;
+            --accent-incorrect: #ef4444;
+            --accent-primary: #6366f1;
+            --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.06);
+            --shadow-medium: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --border-radius: 20px;
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 1.5rem 2rem;
+            z-index: 100;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .header-content {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .progress {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        main {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 4rem;
+        }
+
+        .question-card {
+            background: var(--bg-glass);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-soft);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            transform: translateZ(0);
+            will-change: transform;
+            transition: var(--transition-smooth);
+        }
+
+        .question-card:hover {
+            box-shadow: var(--shadow-medium);
+        }
+
+        .question-number {
+            display: inline-block;
+            background: var(--accent-primary);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .question-text {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .option {
+            position: relative;
+            background: rgba(255, 255, 255, 0.7);
+            border: 2px solid transparent;
+            border-radius: 16px;
+            padding: 1rem 1.25rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            transform: translateZ(0);
+            will-change: transform, background-color, border-color;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .option:hover:not(.disabled) {
+            background: var(--bg-glass-hover);
+            transform: translateX(4px);
+            border-color: rgba(99, 102, 241, 0.2);
+        }
+
+        .option:focus-visible {
+            outline: 3px solid var(--accent-primary);
+            outline-offset: 2px;
+        }
+
+        .option-letter {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--accent-primary);
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.875rem;
+            flex-shrink: 0;
+            transition: var(--transition-smooth);
+        }
+
+        .option-text {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: var(--transition-smooth);
+        }
+
+        .option.correct {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: var(--accent-correct);
+        }
+
+        .option.correct .option-letter {
+            background: var(--accent-correct);
+            color: white;
+        }
+
+        .option.correct .option-text {
+            color: #065f46;
+            font-weight: 600;
+        }
+
+        .option.incorrect {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: var(--accent-incorrect);
+            animation: shake 0.5s ease-in-out;
+        }
+
+        .option.incorrect .option-letter {
+            background: var(--accent-incorrect);
+            color: white;
+        }
+
+        .option.incorrect .option-text {
+            color: #991b1b;
+        }
+
+        .option.disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
+        .explanation {
+            margin-top: 1.5rem;
+            padding: 1.25rem;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            border-left: 4px solid var(--accent-primary);
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            pointer-events: none;
+        }
+
+        .explanation.visible {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .explanation-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+
+        .explanation-text {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .status-icon {
+            position: absolute;
+            right: 1.25rem;
+            width: 24px;
+            height: 24px;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .option.correct .status-icon,
+        .option.incorrect .status-icon {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        @media (max-width: 640px) {
+            header {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.25rem;
+            }
+
+            main {
+                padding: 1rem 1rem 3rem;
+            }
+
+            .question-card {
+                padding: 1.5rem;
+            }
+
+            .question-text {
+                font-size: 1rem;
+            }
+
+            .option {
+                padding: 0.875rem 1rem;
+            }
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>QQQ2 ART APP</h1>
+            <span class="progress" id="progress">Question 1 of 300</span>
+        </div>
+    </header>
+
+    <main id="quiz-container" role="main">
+        <!-- Questions will be inserted here by JavaScript -->
+    </main>
+
+    <!-- Audio elements for sound feedback -->
+    <audio id="success-sound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZURE" type="audio/wav">
+    </audio>
+    
+    <audio id="error-sound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBz+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZURE" type="audio/wav">
+    </audio>
+
+    <script>
+        // Quiz data - all 300 questions from the source
+        const quizData = [
+            {
+                question: "Which of the following best defines art?",
+                options: ["A) A form of entertainment", "B) An expression of human experience", "C) A tool for communication", "D) A representation of reality"],
+                correct: 1,
+                explanation: "Art is an expression of human experience (from Scribd LET Reviewer)."
+            },
+            {
+                question: "The term \"aesthetics\" refers to:",
+                options: ["A) The study of artistic techniques", "B) The philosophy of beauty and taste", "C) The history of art movements", "D) The creation of art"],
+                correct: 1,
+                explanation: "Aesthetics is the philosophy of beauty and taste (from Scribd LET Reviewer)."
+            },
+            {
+                question: "What is the primary purpose of impressionist painting?",
+                options: ["A) To depict realistic scenes", "B) To capture light and its changing qualities", "C) To represent historical events", "D) To express inner emotions"],
+                correct: 1,
+                explanation: "Impressionism focuses on capturing light (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which artist is known for using bold colors and abstract forms in his works?",
+                options: ["A) Vincent van Gogh", "B) Claude Monet", "C) Jackson Pollock", "D) Leonardo da Vinci"],
+                correct: 2,
+                explanation: "Jackson Pollock used bold colors and abstract forms (from Scribd LET Reviewer)."
+            },
+            {
+                question: "What does the term \"mixed media\" refer to in art?",
+                options: ["A) A type of art that uses only paint", "B) Art that combines different materials and techniques", "C) Art that focuses on digital technology", "D) Art that is created for commercial purposes"],
+                correct: 1,
+                explanation: "Mixed media combines materials (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which of the following is NOT a characteristic of Cubism?",
+                options: ["A) Fragmentation of objects", "B) Use of geometric shapes", "C) Representation of depth through perspective", "D) Multiple viewpoints"],
+                correct: 2,
+                explanation: "Cubism avoids traditional depth (from Scribd LET Reviewer)."
+            },
+            {
+                question: "The Mona Lisa is an example of:",
+                options: ["A) Impressionism", "B) Baroque", "C) Renaissance", "D) Abstract Expressionism"],
+                correct: 2,
+                explanation: "Mona Lisa is Renaissance art (from Scribd LET Reviewer)."
+            },
+            {
+                question: "What element of art primarily refers to the hue, value, and intensity of colors?",
+                options: ["A) Texture", "B) Form", "C) Color", "D) Space"],
+                correct: 2,
+                explanation: "Color refers to hue, value, intensity (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which of the following artworks is considered a prominent example of Surrealism?",
+                options: ["A) The Starry Night", "B) Persistence of Memory", "C) Girl with a Pearl Earring", "D) The Last Supper"],
+                correct: 1,
+                explanation: "Persistence of Memory is Surrealism (from Scribd LET Reviewer)."
+            },
+            {
+                question: "What is the significance of the use of light and shadow in a painting?",
+                options: ["A) To create texture", "B) To enhance emotional impact", "C) To show movement", "D) To simplify the composition"],
+                correct: 1,
+                explanation: "Light and shadow enhance emotion (from Studocu LET Reviewer)."
+            },
+            {
+                question: "The term \"focal point\" in art refers to:",
+                options: ["A) The main area of interest in a composition", "B) The color palette used", "C) The medium chosen for the artwork", "D) The artist's signature"],
+                correct: 0,
+                explanation: "Focal point is the main interest (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Which of the following movements emphasized the importance of personal expression and emotion in art?",
+                options: ["A) Neoclassicism", "B) Romanticism", "C) Realism", "D) Modernism"],
+                correct: 1,
+                explanation: "Romanticism emphasizes emotion (from Studocu LET Reviewer)."
+            },
+            {
+                question: "The use of repetition and patterns in art is primarily used to:",
+                options: ["A) Create chaos", "B) Convey a message", "C) Draw attention to a specific area", "D) Establish rhythm and harmony"],
+                correct: 3,
+                explanation: "Repetition establishes rhythm (from Scribd LET Reviewer)."
+            },
+            {
+                question: "What does \"negative space\" refer to in a composition?",
+                options: ["A) The main subject of the artwork", "B) The area around and between the subjects", "C) The colors used in a painting", "D) The lack of detail in an artwork"],
+                correct: 1,
+                explanation: "Negative space is the area around subjects (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which artist is renowned for his large-scale sculptures and public installations?",
+                options: ["A) Michelangelo", "B) Henry Moore", "C) Andy Warhol", "D) Salvador Dalí"],
+                correct: 1,
+                explanation: "Henry Moore is known for sculptures (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Which of the following statements best describes Abstract Art?",
+                options: ["A) It is a realistic representation of objects", "B) It is a reflection of nature", "C) It tells a clear story or narrative", "D) It focuses on color and form rather than specific subjects"],
+                correct: 3,
+                explanation: "Abstract focuses on color and form (from Studocu LET Reviewer)."
+            },
+            {
+                question: "In art, \"composition\" refers to:",
+                options: ["A) The color scheme used", "B) The historical context of the piece", "C) The materials used in the artwork", "D) The arrangement of elements within a work"],
+                correct: 3,
+                explanation: "Composition is arrangement (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Which of the following is a characteristic of Baroque art?",
+                options: ["A) Simplicity and clarity", "B) Dramatic use of light and shadow", "C) Focus on nature", "D) Abstraction"],
+                correct: 1,
+                explanation: "Baroque uses dramatic light (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which of the following styles is characterized by the use of bright colors and playful forms?",
+                options: ["A) Dada", "B) Art Nouveau", "C) Constructivism", "D) Minimalism"],
+                correct: 1,
+                explanation: "Art Nouveau uses bright colors (from Scribd LET Reviewer)."
+            },
+            {
+                question: "The artwork \"The Scream\" by Edvard Munch is an example of which movement?",
+                options: ["A) Impressionism", "B) Cubism", "C) Surrealism", "D) Expressionism"],
+                correct: 3,
+                explanation: "The Scream is Expressionism (from Studocu LET Reviewer)."
+            },
+            {
+                question: "What is the main focus of performance art?",
+                options: ["A) The physical artwork created", "B) The artist's physical presence and actions", "C) The materials used", "D) The historical context of the performance"],
+                correct: 1,
+                explanation: "Performance art focuses on actions (from Scribd LET Reviewer)."
+            },
+            {
+                question: "The concept of \"chiaroscuro\" is most closely associated with:",
+                options: ["A) Color theory", "B) The emotional expression in art", "C) The arrangement of elements", "D) The use of light and dark to create depth"],
+                correct: 3,
+                explanation: "Chiaroscuro is light and dark (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which art movement is characterized by the rejection of tradition and the embrace of the new?",
+                options: ["A) Classical", "B) Modernism", "C) Impressionism", "D) Realism"],
+                correct: 1,
+                explanation: "Modernism rejects tradition (from Scribd LET Reviewer)."
+            },
+            {
+                question: "The term \"triptych\" refers to:",
+                options: ["A) A painting made up of three panels", "B) An artwork created in three dimensions", "C) A series of artworks", "D) A technique used in sculpture"],
+                correct: 0,
+                explanation: "Triptych is three panels (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which artist is best known for his innovative use of color and light in landscapes?",
+                options: ["A) Georgia O'Keeffe", "B) Claude Monet", "C) Pablo Picasso", "D) Jackson Pollock"],
+                correct: 1,
+                explanation: "Monet used color and light (from Scribd LET Reviewer)."
+            },
+            {
+                question: "What does the term \"installation art\" refer to?",
+                options: ["A) Art that is created in a specific location", "B) Art that is framed and displayed in galleries", "C) Art that focuses on traditional techniques", "D) Art that is created digitally"],
+                correct: 0,
+                explanation: "Installation is site-specific (from Studocu LET Reviewer)."
+            },
+            {
+                question: "The term \"avant-garde\" refers to:",
+                options: ["A) Traditional artistic practices", "B) Innovative and experimental art", "C) Popular art forms", "D) Art that is created for commercial purposes"],
+                correct: 1,
+                explanation: "Avant-garde is experimental (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Which of the following best describes the art movement known as Dada?",
+                options: ["A) A reaction against the horrors of war through absurdity", "B) A celebration of classical forms and ideas", "C) A movement focused on realism and detail", "D) A style that emphasizes harmony and balance"],
+                correct: 0,
+                explanation: "Dada reacts to war (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which of the following is considered a major characteristic of Romantic art?",
+                options: ["A) Emphasis on rationality", "B) Focus on nature and emotion", "C) Strict adherence to classical forms", "D) Use of geometric shapes"],
+                correct: 1,
+                explanation: "Romanticism focuses on nature (from Scribd LET Reviewer)."
+            },
+            {
+                question: "The term \"mural\" refers to:",
+                options: ["A) A small painting", "B) A decorative wall painting", "C) A sculpture", "D) A type of photography"],
+                correct: 1,
+                explanation: "Mural is wall painting (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which artist is famous for his large-scale, colorful abstract works created using the drip technique?",
+                options: ["A) Mark Rothko", "B) Jackson Pollock", "C) Piet Mondrian", "D) Andy Warhol"],
+                correct: 1,
+                explanation: "Pollock used drip technique (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Which art form is primarily focused on the three-dimensional representation of figures or objects?",
+                options: ["A) Painting", "B) Photography", "C) Printmaking", "D) Sculpture"],
+                correct: 3,
+                explanation: "Sculpture is three-dimensional (from Studocu LET Reviewer)."
+            },
+            {
+                question: "What is the main purpose of a still life painting?",
+                options: ["A) To depict historical events", "B) To showcase inanimate objects", "C) To express human emotion", "D) To represent landscapes"],
+                correct: 1,
+                explanation: "Still life showcases objects (from Scribd LET Reviewer)."
+            },
+            {
+                question: "The term \"symmetry\" in art refers to:",
+                options: ["A) A lack of balance in a composition", "B) Equal weight and arrangement on both sides", "C) The use of contrasting elements", "D) The depiction of movement"],
+                correct: 1,
+                explanation: "Symmetry is equal balance (from Studocu LET Reviewer)."
+            },
+            {
+                question: "What is \"fresco\"?",
+                options: ["A) A technique for printing on fabric", "B) A type of landscape painting", "C) A style of sculpture", "D) A method of mural painting on wet plaster"],
+                correct: 3,
+                explanation: "Fresco is on wet plaster (from Scribd LET Reviewer)."
+            },
+            {
+                question: "What is the expression of human creative skill and imagination?",
+                options: ["A) Emphasis", "B) Contour", "C) Art", "D) Dominance"],
+                correct: 2,
+                explanation: "Art is creative expression (from Scribd LET Reviewer)."
+            },
+            {
+                question: "In what way is art important in daily life?",
+                options: ["A) It has personal significance.", "B) It reflects our society.", "C) It records history.", "D) All of the above."],
+                correct: 3,
+                explanation: "Art serves multiple purposes (from Scribd LET Reviewer)."
+            },
+            {
+                question: "The way to do an art critique is to",
+                options: ["A) describe, analyze, interpret, and evaluate the piece", "B) talk to the artist", "C) decide if it's good", "D) write an artist statement"],
+                correct: 0,
+                explanation: "Critique involves four steps (from Scribd LET Reviewer)."
+            },
+            {
+                question: "A person learning a trade or an art from a skilled worker is called",
+                options: ["A) an apprentice", "B) a mentor", "C) a foreman", "D) a laborer"],
+                correct: 0,
+                explanation: "Apprentice learns from skilled worker (from Scribd LET Reviewer)."
+            },
+            {
+                question: "A rule used by artists when planning a good composition",
+                options: ["A) \"Rule of Sketch\"", "B) \"Rule of Placement\"", "C) \"Rule of Perspective\"", "D) \"Rule of Thirds\""],
+                correct: 3,
+                explanation: "Rule of Thirds for composition (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Andy Warhol, an American painter and filmmaker, is best known for his depiction of what grocery store item?",
+                options: ["A) Apples", "B) Bacon", "C) Tomato Soup", "D) Onions"],
+                correct: 2,
+                explanation: "Warhol depicted Campbell's soup (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Andy Warhol's work can best be classified as",
+                options: ["A) realism", "B) pop art", "C) splatter paint", "D) cubism"],
+                correct: 1,
+                explanation: "Warhol is pop art (from Scribd LET Reviewer)."
+            },
+            {
+                question: "A style of artwork created using many geometric shapes, often not resembling any specific object",
+                options: ["A) Surrealism", "B) Fauvism", "C) Cubism", "D) Baroque"],
+                correct: 2,
+                explanation: "Cubism uses geometric shapes (from Scribd LET Reviewer)."
+            },
+            {
+                question: "An art style where the artist tries to paint a picture exactly how it looks in real life, with as many details as possible",
+                options: ["A) Impressionism", "B) Pointillism", "C) Realism", "D) Fauvism"],
+                correct: 2,
+                explanation: "Realism is detailed and lifelike (from Scribd LET Reviewer)."
+            },
+            {
+                question: "A style of art where the artist attempts to convey as much of their emotion into the artwork as possible, often using distortion and bold colors",
+                options: ["A) Expressionism", "B) Surrealism", "C) Cubism", "D) Impressionist"],
+                correct: 0,
+                explanation: "Expressionism conveys emotion (from Scribd LET Reviewer)."
+            },
+            {
+                question: "The way artwork is arranged is called",
+                options: ["A) emphasis", "B) contour", "C) composition", "D) stylus"],
+                correct: 2,
+                explanation: "Composition is arrangement (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Surrealism is an art movement that used dreamlike imagery",
+                options: ["A) True", "B) False", "C) All of the above", "D) None of the above"],
+                correct: 0,
+                explanation: "Surrealism is dreamlike (from Scribd LET Reviewer)."
+            },
+            {
+                question: "An art style where artwork is extremely detailed and ornate",
+                options: ["A) Surrealism", "B) Baroque", "C) Fauvism", "D) Expressionism"],
+                correct: 1,
+                explanation: "Baroque is detailed and ornate (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Pablo Picasso is from the country of",
+                options: ["A) Germany", "B) Italy", "C) Spain", "D) United States of America"],
+                correct: 2,
+                explanation: "Picasso is Spanish (from Scribd LET Reviewer)."
+            },
+            {
+                question: "What is the title of the style of painting that Picasso invented?",
+                options: ["A) Realism", "B) Impressionism", "C) Cubism", "D) Art Nouveau"],
+                correct: 2,
+                explanation: "Picasso invented Cubism (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Where is the \"Mona Lisa\" hanging in France?",
+                options: ["A) Gargoyle square", "B) The Louvre", "C) The Eiffel Tower", "D) Chartres Cathedral"],
+                correct: 1,
+                explanation: "Mona Lisa is in the Louvre (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Van Gogh's most famous work of art to this day",
+                options: ["A) \"The Mona Lisa\"", "B) \"The Scream\"", "C) \"Starry Night\"", "D) \"Poppies\""],
+                correct: 2,
+                explanation: "Starry Night is famous (from Scribd LET Reviewer)."
+            },
+            {
+                question: "What country was Van Gogh born in?",
+                options: ["A) Holland", "B) France", "C) Spain", "D) United States of America"],
+                correct: 0,
+                explanation: "Van Gogh is Dutch (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Georgia O'Keeffe was an __________ artist",
+                options: ["A) English", "B) Italian", "C) American", "D) Australian"],
+                correct: 2,
+                explanation: "O'Keeffe is American (from Scribd LET Reviewer)."
+            },
+            {
+                question: "O'Keeffe is best known for her paintings of",
+                options: ["A) the sea and marine animals", "B) enlarged flowers and New Mexico landscapes", "C) native American Indians", "D) the Australian Outback"],
+                correct: 1,
+                explanation: "O'Keeffe painted flowers and landscapes (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Salvador Dali is considered a Surrealist",
+                options: ["A) True", "B) False", "C) All of the above", "D) None of the above"],
+                correct: 0,
+                explanation: "Dali is Surrealist (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Salvador Dali was born in Spain",
+                options: ["A) True", "B) False", "C) All of the above", "D) None of the above"],
+                correct: 1,
+                explanation: "Dali was born in Spain (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Rembrandt is known as an artist of what style?",
+                options: ["A) Impressionists", "B) Baroque", "C) Modern", "D) Prehistoric"],
+                correct: 1,
+                explanation: "Rembrandt is Baroque (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Rembrandt, considered one of the greatest painters and printmakers in European art, was born in what country?",
+                options: ["A) Netherlands", "B) Switzerland", "C) France", "D) Spain"],
+                correct: 0,
+                explanation: "Rembrandt is Dutch (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Monet is the father of which movement?",
+                options: ["A) Realism", "B) Impressionism", "C) Cubism", "D) Art Nouveau"],
+                correct: 1,
+                explanation: "Monet is Impressionism (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Where did Monet grow up?",
+                options: ["A) Holland", "B) England", "C) France", "D) United States of America"],
+                correct: 2,
+                explanation: "Monet is French (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Georges Seurat, the artist who created the painting \"Sunday Afternoon on the Island of La Grande Jatte,\" used which method of art?",
+                options: ["A) Cubism", "B) Pointillism", "C) Abstract", "D) Dadaism"],
+                correct: 1,
+                explanation: "Seurat used pointillism (from Scribd LET Reviewer)."
+            },
+            {
+                question: "\"Mona Lisa\" was painted by",
+                options: ["A) Vincent van Gogh", "B) Claude Monet", "C) Picasso", "D) Leonardo da Vinci"],
+                correct: 3,
+                explanation: "Da Vinci painted Mona Lisa (from Scribd LET Reviewer)."
+            },
+            {
+                question: "\"Sunflowers\" was painted by",
+                options: ["A) Pierre-August Renoir", "B) Vincent van Gogh", "C) Johannes Vermeer", "D) Michelangelo"],
+                correct: 1,
+                explanation: "Van Gogh painted Sunflowers (from Scribd LET Reviewer)."
+            },
+            {
+                question: "\"Poppies in a Field\" was painted by",
+                options: ["A) Claude Monet", "B) Leonardo da Vinci", "C) Rene Magritte", "D) Johannes Vermeer"],
+                correct: 0,
+                explanation: "Monet painted Poppies (from Scribd LET Reviewer)."
+            },
+            {
+                question: "\"The Scream\" was painted by",
+                options: ["A) Vincent van Gogh", "B) Pierre-August Renoir", "C) Edvard Munch", "D) Claude Monet"],
+                correct: 2,
+                explanation: "Munch painted The Scream (from Scribd LET Reviewer)."
+            },
+            {
+                question: "\"The Last Supper\" was painted by",
+                options: ["A) Leonardo da Vinci", "B) Pierre-August Renoir", "C) Edvard Munch", "D) Michelangelo"],
+                correct: 0,
+                explanation: "Da Vinci painted The Last Supper (from Scribd LET Reviewer)."
+            },
+            {
+                question: "\"Dance at Le Moulin de la Galette\" was painted by",
+                options: ["A) Rene Magritte", "B) Picasso", "C) Pierre-Auguste Renoir", "D) Johannes Vermeer"],
+                correct: 2,
+                explanation: "Renoir painted Dance (from Scribd LET Reviewer)."
+            },
+            {
+                question: "\"Girl with a Pearl Earring\" was painted by",
+                options: ["A) Picasso", "B) Johannes Vermeer", "C) Michelangelo", "D) Edvard Munch"],
+                correct: 1,
+                explanation: "Vermeer painted Girl with a Pearl Earring (from Scribd LET Reviewer)."
+            },
+            {
+                question: "\"Dance Class\" was painted by",
+                options: ["A) Claude Monet", "B) Leonardo da Vinci", "C) Edgar Degas", "D) Rene Magritte"],
+                correct: 2,
+                explanation: "Degas painted Dance Class (from Scribd LET Reviewer)."
+            },
+            {
+                question: "\"Creation of Adam\" was painted by",
+                options: ["A) Michelangelo", "B) Johannes Vermeer", "C) Pierre-August Renoir", "D) Leonardo da Vinci"],
+                correct: 0,
+                explanation: "Michelangelo painted Creation of Adam (from Scribd LET Reviewer)."
+            },
+            {
+                question: "\"The Persistence of Memory\" was painted by",
+                options: ["A) Johannes Vermeer", "B) Pierre-August Renoir", "C) Salvador Dali", "D) Leonardo da Vinci"],
+                correct: 2,
+                explanation: "Dali painted Persistence of Memory (from Scribd LET Reviewer)."
+            },
+            {
+                question: "What does a color wheel show?",
+                options: ["A) Complementary colors", "B) Analogous colors", "C) Primary colors", "D) All of the above"],
+                correct: 3,
+                explanation: "Color wheel shows relationships (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Movement in art where hundreds of dots are used to create a picture",
+                options: ["A) Pointillism", "B) Impressionism", "C) Realism", "D) Abstract"],
+                correct: 0,
+                explanation: "Pointillism uses dots (from Scribd LET Reviewer)."
+            },
+            {
+                question: "The artist Edgar Degas was best known for his paintings of waterlilies",
+                options: ["A) True", "B) False", "C) All of the above", "D) None of the above"],
+                correct: 1,
+                explanation: "Degas painted dancers, not waterlilies (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Edward Degas was a nineteenth-century French artist famous for his paintings, sculptures, prints, and drawings",
+                options: ["A) True", "B) False", "C) All of the above", "D) None of the above"],
+                correct: 0,
+                explanation: "Degas was French artist (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Impressionism is a 19th-century art movement that mainly focused on the",
+                options: ["A) study of geometric form", "B) study of negative and positive space", "C) study of light on the surface of an object", "D) study of value"],
+                correct: 2,
+                explanation: "Impressionism focuses on light (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Art that emerged in the mid-1950s that used imagery from popular culture is termed",
+                options: ["A) Impressionism", "B) Realism", "C) Minimalism", "D) Pop Art"],
+                correct: 3,
+                explanation: "Pop Art uses popular culture (from Scribd LET Reviewer)."
+            },
+            {
+                question: "A twentieth-century non-representational painting style in which artists applied paints freely to express feelings and emotions",
+                options: ["A) Abstract Expressionism", "B) Fauvism", "C) Pop Art", "D) Cubism"],
+                correct: 0,
+                explanation: "Abstract Expressionism expresses emotions (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Jackson Pollock's paintings were classified as what?",
+                options: ["A) Realism", "B) Grotesque", "C) Surreal", "D) Splatterpaint"],
+                correct: 3,
+                explanation: "Pollock used splatter (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Jackson Pollock was an influential American painter and a central figure in what movement?",
+                options: ["A) American Modernism", "B) Pop Art", "C) Abstract Expressionist", "D) Minimalism"],
+                correct: 2,
+                explanation: "Pollock is Abstract Expressionist (from Scribd LET Reviewer)."
+            },
+            {
+                question: "An English landscape painter of the late eighteenth century, known for his pastoral scenes",
+                options: ["A) John Constable", "B) Willem de Kooning", "C) Pablo Picasso", "D) Vincent van Gogh"],
+                correct: 0,
+                explanation: "Constable painted landscapes (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Cityscapes, or as it is sometimes called Urban Landscapes, are paintings whose subject matter is the physical aspects of the city and urban life",
+                options: ["A) True", "B) False", "C) All of the above", "D) None of the above"],
+                correct: 0,
+                explanation: "Cityscapes are urban (from Scribd LET Reviewer)."
+            },
+            {
+                question: "A collection of meaningless shapes, texture, and colors thrown haphazardly onto a canvas. Its purpose is to let the viewer interpret its meaning",
+                options: ["A) Still Life", "B) Grotesque", "C) Collage", "D) Abstract"],
+                correct: 3,
+                explanation: "Abstract is interpretive (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Naïve Art is art characterized by a childlike simplicity that possesses minute detail, bright saturated colors, disproportionate figures, and a lack of perspective",
+                options: ["A) True", "B) False", "C) All of the above", "D) None of the above"],
+                correct: 0,
+                explanation: "Naïve Art is childlike (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Step by dipping a bristle brush in paint and pouncing it up and down on paper to create different effects. Used to create clouds, trees, flowers, and heads. What art technique is described?",
+                options: ["A) Hatching", "B) Cross-hatching", "C) Stippling", "D) Sponging"],
+                correct: 3,
+                explanation: "Sponging creates effects (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Painting, Sculptures, and Theater Artworks are easily recognized subjects because of its clarity and Identification. Which subject of art is being referred to?",
+                options: ["A) Non-representational", "B) Representational", "C) Abstract", "D) Surreal"],
+                correct: 1,
+                explanation: "Representational is recognizable (from Studocu LET Reviewer)."
+            },
+            {
+                question: "How will you define medium?",
+                options: ["A) It is a material used in making art work.", "B) It is the nature of the art form.", "C) It is the style.", "D) It is the theme."],
+                correct: 0,
+                explanation: "Medium is material (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Art is considered as an ________ when it is experienced and perceived",
+                options: ["A) Interactive", "B) Integration", "C) Creative", "D) Artistic"],
+                correct: 0,
+                explanation: "Art is interactive when perceived (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Who among the following artists created the painting \"The Making of the Philippine Flag?\"",
+                options: ["A) Josef Luciano Dans", "B) Carlos \"Botong\" Francisco", "C) Juan Luna", "D) Fernando Amorsolo"],
+                correct: 1,
+                explanation: "Francisco painted it (from Studocu LET Reviewer)."
+            },
+            {
+                question: "When in art history will the painting be recognized as being in proportion with naturalistic representation, where art can be found in vases, panels, or tombs?",
+                options: ["A) Ancient Art", "B) Classical Art", "C) Medieval Art", "D) Renaissance Art"],
+                correct: 1,
+                explanation: "Classical Art has naturalistic proportion (from Studocu LET Reviewer)."
+            },
+            {
+                question: "What do you call the application of paint, pigment, color, or another medium to a solid surface?",
+                options: ["A) Painting", "B) Sculpture", "C) Architecture", "D) Printmaking"],
+                correct: 0,
+                explanation: "Painting is applying pigment (from Studocu LET Reviewer)."
+            },
+            {
+                question: "The ka-in originated in southern Kalinga. What does the red in this fabric represent?",
+                options: ["A) Love", "B) Bravery", "C) Peace", "D) Nature"],
+                correct: 1,
+                explanation: "Red represents bravery (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which of these Filipino Marching Bands makes used of bamboo earphones and other instruments?",
+                options: ["A) Musikong Bumbong", "B) Pangkat Kawayan", "C) Brass Band", "D) Rondalla"],
+                correct: 0,
+                explanation: "Musikong Bumbong uses bamboo (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which of the following musical elements is known as the loudness or softness of sound?",
+                options: ["A) Beat", "B) Dynamics", "C) Pitch", "D) Tempo"],
+                correct: 1,
+                explanation: "Dynamics is loudness/softness (from Studocu LET Reviewer)."
+            },
+            {
+                question: "What art principle uses line, form, color, texture, or pattern repeatedly?",
+                options: ["A) Unity", "B) Rhythm", "C) Balance", "D) Emphasis"],
+                correct: 1,
+                explanation: "Rhythm uses repetition (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which of the following is not a dominance of blue colors?",
+                options: ["A) Purple", "B) Yellow", "C) Green", "D) Indigo"],
+                correct: 1,
+                explanation: "Yellow is not blue-dominant (from Studocu LET Reviewer)."
+            },
+            {
+                question: "A 2-dimensional area enclosed by a line that establishes contour is:",
+                options: ["A) Shape", "B) Space", "C) Form", "D) Texture"],
+                correct: 0,
+                explanation: "Shape is 2D area (from Studocu LET Reviewer)."
+            },
+            {
+                question: "What does technique mean?",
+                options: ["A) The process in which the artist manipulates materials to achieve the desired formal effect", "B) The manner in which artists use and manipulate materials to achieve desired formal effect", "C) The theme", "D) The style"],
+                correct: 1,
+                explanation: "Technique is manipulation of materials (from Studocu LET Reviewer)."
+            },
+            {
+                question: "What are the characteristics of visual arts in the Philippines? I. Has a wide array of cultural influence to the country. II. Has a social and communal function. III. Has expensive materials and favorable to elite families. IV. Has marked by how it rebels against the rules",
+                options: ["A) I, II and IV", "B) I, II and III", "C) I, III and IV", "D) II, III and IV"],
+                correct: 0,
+                explanation: "Philippine visual arts have cultural influence, communal function, and rebel against rules (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which among the forms of arts is perceived by the eyes?",
+                options: ["A) Graphic Arts", "B) Literary Arts", "C) Performance Arts", "D) Visual Arts"],
+                correct: 3,
+                explanation: "Visual arts are perceived by eyes (from Cram.com CBRC)."
+            },
+            {
+                question: "What do you call a large-scale musical composition for orchestra and voices that includes religious narratives?",
+                options: ["A) Concerto", "B) Oratorio", "C) Symphony", "D) Sonata"],
+                correct: 1,
+                explanation: "Oratorio is large-scale with religious narrative (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Streets and generally consists of brass and woodwind instruments",
+                options: ["A) Brass Band", "B) Rondalla", "C) Pangkat Kawayan", "D) Musikong Bumbong"],
+                correct: 0,
+                explanation: "Brass Band is street ensemble (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which of the following is the international instrument classification, in which Instruments are classified based on how they produce sound?",
+                options: ["A) Hornbostel-Sachs", "B) Dewey Decimal", "C) Sachs-Hornbostel", "D) Instrument Class"],
+                correct: 0,
+                explanation: "Hornbostel-Sachs classifies by sound production (from Studocu LET Reviewer)."
+            },
+            {
+                question: "________ has an immediate and significant impact on the design of a piece of artwork. Also, can influence how individuals feel and behave",
+                options: ["A) Texture", "B) Color", "C) Line", "D) Shape"],
+                correct: 1,
+                explanation: "Color impacts design and behavior (from Studocu LET Reviewer)."
+            },
+            {
+                question: "What term is used to describe a different shade of one color?",
+                options: ["A) Monochromatic", "B) Complementary", "C) Analogous", "D) Triadic"],
+                correct: 0,
+                explanation: "Monochromatic is shades of one color (from Studocu LET Reviewer)."
+            },
+            {
+                question: "This art making is the process of creating and deriving meaning through art. For a person to make sense of language and draw meaning from words, it is necessary to take into consideration semantic and grammatical principles",
+                options: ["A) Making", "B) Soul Making", "C) Print Making", "D) Batik Making"],
+                correct: 1,
+                explanation: "Soul Making derives meaning through art (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Leonardo Da Vinci: Monalisa, Vincent Van Gogh: _______",
+                options: ["A) The Last Supper", "B) The Starry Night", "C) The Scream", "D) Guernica"],
+                correct: 1,
+                explanation: "Van Gogh painted The Starry Night (from Studocu LET Reviewer)."
+            },
+            {
+                question: "This line suggests strength, power, and authority",
+                options: ["A) Vertical", "B) Horizontal", "C) Diagonal", "D) Curved"],
+                correct: 0,
+                explanation: "Vertical suggests strength (from Studocu LET Reviewer)."
+            },
+            {
+                question: "What is the type of balance where both sides of a composition are balanced yet different?",
+                options: ["A) Symmetrical", "B) Asymmetrical", "C) Radial", "D) Balanced"],
+                correct: 1,
+                explanation: "Asymmetrical is balanced but different (from Studocu LET Reviewer)."
+            },
+            {
+                question: "In art, what do pattern and repetition create?",
+                options: ["A) Rhythm", "B) Balance", "C) Emphasis", "D) Unity"],
+                correct: 0,
+                explanation: "Pattern and repetition create rhythm (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which is the ratio of one art element to another?",
+                options: ["A) Harmony", "B) Proportion", "C) Rhythm", "D) Balance"],
+                correct: 1,
+                explanation: "Proportion is ratio (from Studocu LET Reviewer)."
+            },
+            {
+                question: "It is an artwork created by Leonardo da Vinci",
+                options: ["A) Starry Night", "B) Mona Lisa", "C) The Scream", "D) Guernica"],
+                correct: 1,
+                explanation: "Mona Lisa by Da Vinci (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which painting was painted by Juan Luna and is the most prized painting of the Philippines?",
+                options: ["A) Spolarium", "B) Our Lady of Light", "C) Antipolo", "D) Christian Virgins"],
+                correct: 0,
+                explanation: "Spolarium is prized (from Studocu LET Reviewer)."
+            },
+            {
+                question: "He created the sculpture of Bonifacio monument and UP Oblation",
+                options: ["A) Guillermo Tolentino", "B) Roberto Feleo", "C) Mariano Madrinian", "D) Napoleon Abueva"],
+                correct: 0,
+                explanation: "Tolentino sculpted them (from Studocu LET Reviewer)."
+            },
+            {
+                question: "What is meant of art depicts the representation of a version of reality? Aristotelian philosophy holds that art has two distinct purposes: it allows for the enjoyment of pleasure, and it has the power to be instructional, teaching its audience valuable lessons about life",
+                options: ["A) Art as a means of communication. Art as a means of conveying emotional content", "B) Art as a means of evaluation", "C) Art as a means of emulation", "D) Art as a means of pleasure"],
+                correct: 0,
+                explanation: "Art depicts reality for communication and emotion (from Studocu LET Reviewer)."
+            },
+            {
+                question: "According to Psychology of colors, which of the following best describes the positive remarks for white?",
+                options: ["A) Substance", "B) Hygiene", "C) Glamour", "D) Seriousness"],
+                correct: 1,
+                explanation: "White represents hygiene (from Studocu LET Reviewer)."
+            },
+            {
+                question: "What term is used to describe a different shade of one color?",
+                options: ["A) Monochromatic", "B) Complementary", "C) Analogous", "D) Triadic"],
+                correct: 0,
+                explanation: "Monochromatic is shades (from Studocu LET Reviewer)."
+            },
+            {
+                question: "What type of textile is characterized by dominant red stripes and motifs of geometric patterns as well as nature symbols interlaced with white yellow and black fibers?",
+                options: ["A) Ginamat", "B) Kalinga", "C) Bontoc", "D) Ikat"],
+                correct: 1,
+                explanation: "Kalinga textile has red stripes (from Studocu LET Reviewer)."
+            },
+            {
+                question: "What are these brightly colored beads used for weddings and other important occasions in the province of Ifugao?",
+                options: ["A) Bul-ul", "B) Bongol", "C) Wanes", "D) Get up"],
+                correct: 1,
+                explanation: "Bongol are beads for occasions (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which of the following musical composition styles is similar to a harmonized version of a Protestant Church?",
+                options: ["A) Chorale", "B) Oratorio", "C) Concerto", "D) Symphony"],
+                correct: 0,
+                explanation: "Chorale is harmonized Protestant (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which of the following art styles refers to a wax-based painting technique?",
+                options: ["A) Fresco", "B) Encaustic", "C) Tempera", "D) Oil"],
+                correct: 1,
+                explanation: "Encaustic is wax-based (from Studocu LET Reviewer)."
+            },
+            {
+                question: "A 2-dimensional area enclosed by a line that establishes contour is",
+                options: ["A) Color", "B) Texture", "C) Shape", "D) Pattern"],
+                correct: 2,
+                explanation: "Shape is 2D contour (from Quizlet LET Reviewer)."
+            },
+            {
+                question: "In function of art, it is about beauty. It is reasonably reproduced visual images which communicates through fantastic persuasions and meaningful imagination",
+                options: ["A) Aesthetic Function", "B) Cultural Function", "C) Social Function", "D) Utilitarian Function"],
+                correct: 0,
+                explanation: "Aesthetic is about beauty (from Quizlet LET Reviewer)."
+            },
+            {
+                question: "According to Psychology of colors, which of the following best describes as the positive remarks for white?",
+                options: ["A) Hygiene", "B) Substance", "C) Glamour", "D) Seriousness"],
+                correct: 0,
+                explanation: "White is hygiene (from Quizlet LET Reviewer)."
+            },
+            {
+                question: "What are the examples of hot colors?",
+                options: ["A) Orange, Yellow, and Red", "B) Blue, Green, Violet", "C) Black, White, Gray", "D) Brown, Tan, Beige"],
+                correct: 0,
+                explanation: "Hot colors are orange, yellow, red (from Quizlet LET Reviewer)."
+            },
+            {
+                question: "In the Psychology of colors, Red is for Physical, Yellow is for Emotional, Blue is for Intellectual, and Green is for",
+                options: ["A) Balance", "B) Spiritual", "C) Coldness", "D) Social"],
+                correct: 0,
+                explanation: "Green is balance (from Quizlet LET Reviewer)."
+            },
+            {
+                question: "It is not a comprehensive guide, but rather an experience. The actual act of accomplishing something. Which assumption art this statement talking about?",
+                options: ["A) Art is a result of personal experience", "B) Art is universal", "C) Art is everywhere", "D) Nature is not art"],
+                correct: 0,
+                explanation: "Art is personal experience (from Quizlet LET Reviewer)."
+            },
+            {
+                question: "Leonardo Da Vinci: Monalisa, Vincent Van Gogh:",
+                options: ["A) The Starry Night", "B) The Last Supper", "C) The Scream", "D) Guernica"],
+                correct: 0,
+                explanation: "Van Gogh is Starry Night (from Quizlet LET Reviewer)."
+            },
+            {
+                question: "This art making is the process of creating and deriving meaning through art. For a person to make sense of language and draw meaning from words, it is necessary to take into consideration semantic and grammatical principles",
+                options: ["A) Soul making", "B) Print making", "C) Batik", "D) Origami"],
+                correct: 0,
+                explanation: "Soul making derives meaning (from Quizlet LET Reviewer)."
+            },
+            {
+                question: "Who coined the quotable statement \"We live in a rainbow of chaos\"?",
+                options: ["A) Paul Cezanne", "B) Diego Rivera", "C) Leonardo da Vinci", "D) Claude Monet"],
+                correct: 0,
+                explanation: "Cezanne said it (from Quizlet LET Reviewer)."
+            },
+            {
+                question: "Which colors when combined create secondary colors?",
+                options: ["A) Primary Colors", "B) Tertiary Colors", "C) Complementary Colors", "D) Neutral Colors"],
+                correct: 0,
+                explanation: "Primary create secondary (from Quizlet LET Reviewer)."
+            },
+            {
+                question: "________ has an immediate and significant impact on the design of a piece of artwork. Also, can influence how individuals feel and behave",
+                options: ["A) Color", "B) Texture", "C) Line", "D) Shape"],
+                correct: 0,
+                explanation: "Color impacts design (from Quizlet LET Reviewer)."
+            },
+            {
+                question: "He is a Mexican Painter who stated that \"I've never believed in God, but I believe in Picasso\"",
+                options: ["A) Diego Rivera", "B) Donatello", "C) Edvard Munch", "D) Leonardo"],
+                correct: 0,
+                explanation: "Rivera said it (from Quizlet LET Reviewer)."
+            },
+            {
+                question: "He is regarded as the \"father of Cubism\" and his real name is Pablo Ruiz Picasso",
+                options: ["A) Pablo Picasso", "B) Henry Moore", "C) Michaelangelo", "D) Paul Cezanne"],
+                correct: 0,
+                explanation: "Picasso is father of Cubism (from Quizlet LET Reviewer)."
+            },
+            {
+                question: "What means of art depicts about the representation of a version of reality. Aristotelian philosophy holds that art has two distinct purposes: it allows for the enjoyment of pleasure, and it has the power to be instructional, teaching its audience valuable lessons about life",
+                options: ["A) Art is a means of communication", "B) Art is a means of emulation", "C) Art is a means of evaluation", "D) Art is a means of pleasure"],
+                correct: 0,
+                explanation: "Art is communication (from Quizlet LET Reviewer)."
+            },
+            {
+                question: "This art principle underpin the use of uniform usage of lines, color, and texture across a design project",
+                options: ["A) Unity", "B) Balance", "C) Rhythm", "D) Emphasis"],
+                correct: 0,
+                explanation: "Unity is uniform usage (from Quizlet LET Reviewer)."
+            },
+            {
+                question: "Horizontal lines suggests _______________",
+                options: ["A) Quiet and relaxation", "B) Strength and power", "C) Activity and movement", "D) Authority and dignity"],
+                correct: 0,
+                explanation: "Horizontal is relaxation (from Quizlet LET Reviewer)."
+            },
+            {
+                question: "What term used to describe a different shade of one color?",
+                options: ["A) Monochromatic", "B) Complementary", "C) Analogous", "D) Triadic"],
+                correct: 0,
+                explanation: "Monochromatic is shade (from Quizlet LET Reviewer)."
+            },
+            {
+                question: "This line suggests strength, power, and authority",
+                options: ["A) Vertical line", "B) Diagonal line", "C) Horizontal line", "D) Curved line"],
+                correct: 0,
+                explanation: "Vertical is strength (from Quizlet LET Reviewer)."
+            },
+            {
+                question: "Which of the following is a negative remarks for Yellow, this is according to Psychology of color?",
+                options: ["A) Fear", "B) Inferiority", "C) Coldness", "D) Strain"],
+                correct: 0,
+                explanation: "Yellow negative is fear (from Quizlet LET Reviewer)."
+            },
+            {
+                question: "Painting, Sculptures, and Theater Artworks are easily recognized subject because of its clarity and identification. Which subject of art is referring to?",
+                options: ["A) Representational", "B) Non-representational", "C) Abstract", "D) Surreal"],
+                correct: 0,
+                explanation: "Representational is clear (from Quizlet LET Reviewer)."
+            },
+            {
+                question: "What art principle uses line, form, color, texture, or pattern repeatedly is what patterning",
+                options: ["A) Rhythm", "B) Balance", "C) Unity", "D) Emphasis"],
+                correct: 0,
+                explanation: "Rhythm is repetition (from Quizlet LET Reviewer)."
+            },
+            {
+                question: "Painting, Sculptures, and Theater Artworks are easily recognized subject because of its clarity and identification. Which subject of art is referring to?",
+                options: ["A) Non-representational", "B) Recreational", "C) Representational", "D) Non-recreational"],
+                correct: 2,
+                explanation: "Representational is recognizable (from Cram.com CBRC)."
+            },
+            {
+                question: "When art transcends generations and nations, what assumption is it making?",
+                options: ["A) Art is universal.", "B) Nature is not art and art is not nature.", "C) Art is everywhere.", "D) Both b and c are correct."],
+                correct: 0,
+                explanation: "Art is universal (from Cram.com CBRC)."
+            },
+            {
+                question: "It is not a comprehensive guide, but rather an experience. The actual act of accomplishing something. Which assumption art this statement talking about?",
+                options: ["A) Art is universal.", "B) Nature is not art and art is not nature.", "C) Art is everywhere.", "D) Art is a result of personal experiences"],
+                correct: 3,
+                explanation: "Art is personal experience (from Cram.com CBRC)."
+            },
+            {
+                question: "In function of art, it is about beauty. It is reasonably reproduced visual images which communicates through fantastic persuasions and meaningful imagination",
+                options: ["A) Cultural Function", "B) Social Function", "C) Aesthetic Function", "D) Utilitarian Function"],
+                correct: 2,
+                explanation: "Aesthetic function is beauty (from Cram.com CBRC)."
+            },
+            {
+                question: "Which of the following is not describing a social function art?",
+                options: ["A) Cooperative", "B) Necessities", "C) Sympathetic", "D) Unity"],
+                correct: 1,
+                explanation: "Necessities is not social (from Cram.com CBRC)."
+            },
+            {
+                question: "Which of the following is the best example of cultural function art?",
+                options: ["A) Food and shelter", "B) Comfort", "C) Advertisement", "D) Folk Dance"],
+                correct: 3,
+                explanation: "Folk Dance is cultural (from Cram.com CBRC)."
+            },
+            {
+                question: "What are the examples of hot colors?",
+                options: ["A) Orange, yellow, and red", "B) Blue, yellow, and green", "C) Blue, yellow, and red", "D) Green, blue, and red"],
+                correct: 0,
+                explanation: "Hot colors are warm (from Cram.com CBRC)."
+            },
+            {
+                question: "It is an artwork created by Leonardo da Vinci",
+                options: ["A) Starry Night", "B) Pieta", "C) Mona Lisa", "D) The Birth of Venus"],
+                correct: 2,
+                explanation: "Mona Lisa by Da Vinci (from Cram.com CBRC)."
+            },
+            {
+                question: "This line suggests strength, power, and authority",
+                options: ["A) Vertical", "B) Diagonal", "C) Horizontal", "D) Curved"],
+                correct: 0,
+                explanation: "Vertical is strength (from Cram.com CBRC)."
+            },
+            {
+                question: "A 2-dimensional area enclosed by a line that establishes contour is",
+                options: ["A) Color", "B) Shape", "C) Line", "D) Space"],
+                correct: 1,
+                explanation: "Shape is contour (from Cram.com CBRC)."
+            },
+            {
+                question: "Which painting was painted by Juan Luna and is the most prized painting of the Philippines?",
+                options: ["A) Spolarium", "B) Antipolo", "C) Christian Virgins", "D) Our Lady of Light"],
+                correct: 0,
+                explanation: "Spolarium is prized (from Cram.com CBRC)."
+            },
+            {
+                question: "He is the sculpture of Bonifacio monument and UP Oblation",
+                options: ["A) Mariano Madrinian", "B) Napoleon Abueva", "C) Guillermo Tolentino", "D) Roberto Feleo"],
+                correct: 2,
+                explanation: "Tolentino sculpted them (from Cram.com CBRC)."
+            },
+            {
+                question: "In art awareness, which does not suggest sunset?",
+                options: ["A) Red", "B) Orange", "C) Yellow", "D) Blue"],
+                correct: 3,
+                explanation: "Blue does not suggest sunset (from Cram.com CBRC)."
+            },
+            {
+                question: "Which colors when combined create secondary colors?",
+                options: ["A) Primary colors", "B) Tertiary colors", "C) Complemental colors", "D) Neutral colors"],
+                correct: 0,
+                explanation: "Primary create secondary (from Cram.com CBRC)."
+            },
+            {
+                question: "Horizontal lines suggest",
+                options: ["A) strength and power", "B) quiet and relaxation", "C) authority and dignity", "D) activity and movement"],
+                correct: 1,
+                explanation: "Horizontal is relaxation (from Cram.com CBRC)."
+            },
+            {
+                question: "Which of the following is NOT a dominance of blue colors?",
+                options: ["A) Green", "B) Yellow", "C) Purple", "D) Blue"],
+                correct: 1,
+                explanation: "Yellow is not blue (from Cram.com CBRC)."
+            },
+            {
+                question: "What art principle uses line, form, color, texture, or pattern repeatedly?",
+                options: ["A) Balance", "B) Unity", "C) Emphasis", "D) Rhythm"],
+                correct: 3,
+                explanation: "Rhythm is repetition (from Cram.com CBRC)."
+            },
+            {
+                question: "This art principle underpins the use of uniform usage of lines, color, and texture across a design",
+                options: ["A) Balance", "B) Focus", "C) Unity", "D) Point"],
+                correct: 2,
+                explanation: "Unity is uniform (from Cram.com CBRC)."
+            },
+            {
+                question: "Leonardo Da Vinci: Mona Lisa, Vincent Van Gogh:",
+                options: ["A) The Last Supper", "B) The Scream", "C) The Starry Night", "D) Sistine Chapel"],
+                correct: 2,
+                explanation: "Starry Night by Van Gogh (from Cram.com CBRC)."
+            },
+            {
+                question: "He is regarded as the \"Father of Cubism\" and his real name is Pablo Ruiz Picasso",
+                options: ["A) Michaelangelo", "B) Henry Moore", "C) Pablo Picasso", "D) Paul Cezanne"],
+                correct: 2,
+                explanation: "Picasso is Cubism (from Cram.com CBRC)."
+            },
+            {
+                question: "Who coined the quotable statement \"We live in a rainbow of chaos\"?",
+                options: ["A) Leonardo da Vinci", "B) Paul Cezanne", "C) Diego Rivera", "D) Claude Monet"],
+                correct: 1,
+                explanation: "Cezanne said it (from Cram.com CBRC)."
+            },
+            {
+                question: "This art making is the process of creating and deriving meaning through art. For a person to make sense of language and draw meaning from words, it is necessary to take into consideration semantic and grammatical principles",
+                options: ["A) Print Making", "B) Soul Making", "C) Batik", "D) Origami"],
+                correct: 1,
+                explanation: "Soul Making is deriving meaning (from Cram.com CBRC)."
+            },
+            {
+                question: "What means of art is depicted in the following statements? Aristotelian philosophy holds that art has two distinct purposes. It allows for the enjoyment of pleasure, and it has the power to be instructional, teaching its audience valuable lessons about life",
+                options: ["A) Art as a means of evaluation", "B) Art as a means of communication", "C) Art as a means of emulation", "D) Art as a means of conveying emotional content"],
+                correct: 1,
+                explanation: "Art is communication (from Cram.com CBRC)."
+            },
+            {
+                question: "In the Psychology of colors, Red is for Physical, Yellow is for Emotional, Blue is for Intellectual, and Green is for",
+                options: ["A) Balance", "B) Spiritual", "C) Coldness", "D) Social"],
+                correct: 0,
+                explanation: "Green is balance (from Cram.com CBRC)."
+            },
+            {
+                question: "According to Psychology of colors, which of the following best describes as the positive remarks for white?",
+                options: ["A) Seriousness", "B) Hygiene", "C) Glamour", "D) Substance"],
+                correct: 1,
+                explanation: "White is hygiene (from Cram.com CBRC)."
+            },
+            {
+                question: "In psychology of colors, which of the following is a negative remark for Yellow?",
+                options: ["A) Inferiority", "B) Fear", "C) Coldness", "D) Strain"],
+                correct: 1,
+                explanation: "Yellow negative is fear (from Cram.com CBRC)."
+            },
+            {
+                question: "He is a Mexican Painter who stated that \"I've never believed in God, but I believe in Picasso\"",
+                options: ["A) Diego Rivera", "B) Donatello", "C) Edvard Munch", "D) Leonardo"],
+                correct: 0,
+                explanation: "Rivera said it (from Cram.com CBRC)."
+            },
+            {
+                question: "What term is used to describe a different shade of one color?",
+                options: ["A) Analogous", "B) Monochromatic", "C) Split Color", "D) Complementary"],
+                correct: 1,
+                explanation: "Monochromatic is shade (from Cram.com CBRC)."
+            },
+            {
+                question: "________ has an immediate and significant impact on the design of a piece of artwork. Also, can influence how individuals feel and behave",
+                options: ["A) Space", "B) Color", "C) Shape", "D) Texture"],
+                correct: 1,
+                explanation: "Color impacts (from Cram.com CBRC)."
+            },
+            {
+                question: "Which element of art reflects lighter than a rough surface, making the color more vibrant as a result of the reflection?",
+                options: ["A) Value", "B) Form", "C) Space", "D) Texture"],
+                correct: 3,
+                explanation: "Texture reflects light (from Cram.com CBRC)."
+            },
+            {
+                question: "Which of the following is the international instrument classification, in which instruments are classified based on how they produce sound?",
+                options: ["A) Dewey Decimal System", "B) Hombostel-Sachs", "C) Hornbostel-Sachs", "D) Sachs-Battledore"],
+                correct: 2,
+                explanation: "Hornbostel-Sachs is classification (from Cram.com CBRC)."
+            },
+            {
+                question: "Children commonly sing \"Sitsiritsit\" and \"Bahay Kubo\". Which type of music do they belong to?",
+                options: ["A) Art Music", "B) Sacred Music", "C) Folk Songs", "D) Secular Music"],
+                correct: 2,
+                explanation: "They are folk songs (from Cram.com CBRC)."
+            },
+            {
+                question: "Which of the following musical elements is known as loudness or softness of sound?",
+                options: ["A) Pitch", "B) Dynamics", "C) Beat", "D) Rhythm"],
+                correct: 1,
+                explanation: "Dynamics is loudness (from Cram.com CBRC)."
+            },
+            {
+                question: "Which of the following DOES NOT fall under the category of religious music?",
+                options: ["A) Agnus Dei", "B) Pastores", "C) Bahay Kubo", "D) Pasyon"],
+                correct: 2,
+                explanation: "Bahay Kubo is not religious (from Cram.com CBRC)."
+            },
+            {
+                question: "Philippines has a rich cultural and musical heritage. Which of these nations has had an impact on our music and religion?",
+                options: ["A) Korea", "B) Russia", "C) Spain", "D) Japan"],
+                correct: 2,
+                explanation: "Spain impacted (from Cram.com CBRC)."
+            },
+            {
+                question: "Pangkat Kawayan employs the following instruments EXCEPT:",
+                options: ["A) Angklung", "B) Pan Pipes", "C) Kalatok", "D) Trombone"],
+                correct: 3,
+                explanation: "Trombone is not (from Cram.com CBRC)."
+            },
+            {
+                question: "Lowland music is divided into several categories. Which of the following is NOT an example of Art Music?",
+                options: ["A) Kundiman", "B) Harana", "C) Polka", "D) Kumintang"],
+                correct: 2,
+                explanation: "Polka is not art music (from Cram.com CBRC)."
+            },
+            {
+                question: "What do you call this group of stringed instruments that are played with a pick?",
+                options: ["A) Bamboo Organ", "B) Banda Zabat", "C) Banda Pasig", "D) Rondalla"],
+                correct: 3,
+                explanation: "Rondalla is stringed (from Cram.com CBRC)."
+            },
+            {
+                question: "What is this musical ensemble playing in the streets and generally consist of brass and woodwind Instruments?",
+                options: ["A) Musika Bumbong", "B) Brass Band", "C) Rondalla", "D) Pangkat Kawayan"],
+                correct: 1,
+                explanation: "Brass Band is street (from Cram.com CBRC)."
+            },
+            {
+                question: "Which of these Filipino Marching Bands makes use of bamboo aerophones and other instruments?",
+                options: ["A) Brass Band", "B) Pangkat Kawayan", "C) Musikong Bumbong", "D) Rondalla"],
+                correct: 2,
+                explanation: "Musikong Bumbong uses bamboo (from Cram.com CBRC)."
+            },
+            {
+                question: "There are seven basic elements of art. Which of these elements is classified as geometric or organic?",
+                options: ["A) colors", "B) shape", "C) lines", "D) space"],
+                correct: 1,
+                explanation: "Shape is geometric/organic (from Cram.com CBRC)."
+            },
+            {
+                question: "What type of textile is characterized by dominant red stripes and motifs of geometric patterns as well as nature symbols interlaced with white yellow and black fibers?",
+                options: ["A) Bontoc", "B) Ikat", "C) Ginamat", "D) Kalinga"],
+                correct: 3,
+                explanation: "Kalinga is red stripes (from Cram.com CBRC)."
+            },
+            {
+                question: "What are these brightly colored beads used for weddings and other important occasions in the province of Ifugao?",
+                options: ["A) bongol", "B) get up", "C) bul-ul", "D) wanes"],
+                correct: 0,
+                explanation: "Bongol are beads (from Cram.com CBRC)."
+            },
+            {
+                question: "Which of the following is an Ifugao anthropomorphic carving representing a rice god or guardian spirits?",
+                options: ["A) bul-ul", "B) kiping", "C) chimera", "D) paete"],
+                correct: 0,
+                explanation: "Bul-ul is carving (from Cram.com CBRC)."
+            },
+            {
+                question: "Which of these crafts best represents the Ilocano's hand weaving technique and simple pottery used to store water, rice grains, and wine?",
+                options: ["A) kain & labba", "B) inabel & burnay", "C) kadangyan & kabayan", "D) siniwsiwan & bul-ul"],
+                correct: 1,
+                explanation: "Inabel & burnay are Ilocano (from Cram.com CBRC)."
+            },
+            {
+                question: "In the 1941 drawing, the British artist Barbara Hepworth, used the element of line to plan a",
+                options: ["A) sculpture", "B) painting", "C) drawing", "D) photograph"],
+                correct: 0,
+                explanation: "Hepworth planned sculpture (from Quizlet Test)."
+            },
+            {
+                question: "Romare Bearden's The Dove is an example of",
+                options: ["A) photomontage", "B) sculpture", "C) drawing", "D) painting"],
+                correct: 0,
+                explanation: "The Dove is photomontage (from Quizlet Test)."
+            },
+            {
+                question: "The process of making marks of continuous parallel lines to darken a surface is",
+                options: ["A) hatching", "B) cross-hatching", "C) stippling", "D) blending"],
+                correct: 0,
+                explanation: "Hatching is parallel lines (from Quizlet Test)."
+            },
+            {
+                question: "An artist can use color to indicate depth. When a color is very pure and intense, then the object or space seems",
+                options: ["A) closer", "B) farther", "C) neutral", "D) invisible"],
+                correct: 0,
+                explanation: "Intense color seems closer (from Quizlet Test)."
+            },
+            {
+                question: "When a work of art shows no reference to the natural world of images, it is called",
+                options: ["A) non-objective", "B) realistic", "C) representational", "D) abstract"],
+                correct: 0,
+                explanation: "Non-objective has no reference (from Quizlet Test)."
+            },
+            {
+                question: "In order to tell a story having a series of events within one painting, a 2D artist can paint what is known as",
+                options: ["A) a continuous narrative", "B) a single scene", "C) a portrait", "D) a landscape"],
+                correct: 0,
+                explanation: "Continuous narrative tells story (from Quizlet Test)."
+            },
+            {
+                question: "What does variety add to a composition?",
+                options: ["A) Unity", "B) Interest", "C) Balance", "D) Proportion"],
+                correct: 1,
+                explanation: "Variety adds interest (from Quizlet Test)."
+            },
+            {
+                question: "Which artist wanted viewers to see the natural rhythms present in a flower?",
+                options: ["A) Georgia O'Keeffe", "B) Pablo Picasso", "C) Vincent van Gogh", "D) Claude Monet"],
+                correct: 0,
+                explanation: "O'Keeffe showed rhythms (from Quizlet Test)."
+            },
+            {
+                question: "The symbolic meaning of visual signs and imagery in a work of art is known as",
+                options: ["A) iconography", "B) perspective", "C) composition", "D) texture"],
+                correct: 0,
+                explanation: "Iconography is symbolic meaning (from Quizlet Test)."
+            },
+            {
+                question: "A flat work of art has two dimensions: width and",
+                options: ["A) height", "B) depth", "C) color", "D) shape"],
+                correct: 0,
+                explanation: "Flat art has width and height (from Quizlet Test)."
+            },
+            {
+                question: "Which of the following is not a primary source for analyzing a work of art?",
+                options: ["A) a blog about a painting", "B) the artwork itself", "C) an interview with the artist", "D) a museum catalog"],
+                correct: 0,
+                explanation: "Blog is not primary (from Quizlet Test)."
+            },
+            {
+                question: "This American painter used small abstract motifs within the squares of a grid to create a huge self-portrait",
+                options: ["A) Chuck Close", "B) Andy Warhol", "C) Roy Lichtenstein", "D) Jackson Pollock"],
+                correct: 0,
+                explanation: "Close used grid (from Quizlet Test)."
+            },
+            {
+                question: "Francisco Goya's painting, The Third of May, 1808, was intended as a commentary on",
+                options: ["A) war", "B) peace", "C) love", "D) nature"],
+                correct: 0,
+                explanation: "Goya commented on war (from Quizlet Test)."
+            },
+            {
+                question: "The Taj Mahal was intended to function as a",
+                options: ["A) tomb", "B) palace", "C) temple", "D) museum"],
+                correct: 0,
+                explanation: "Taj Mahal is tomb (from Quizlet Test)."
+            },
+            {
+                question: "Shapes that are the focus of the artwork are referred to as",
+                options: ["A) positive shapes", "B) negative shapes", "C) neutral shapes", "D) abstract shapes"],
+                correct: 0,
+                explanation: "Positive shapes are focus (from Quizlet Test)."
+            },
+            {
+                question: "What is the most important element of a work of art?",
+                options: ["A) Color", "B) Form", "C) Content", "D) Texture"],
+                correct: 1,
+                explanation: "Form is most important (from Studocu)."
+            },
+            {
+                question: "Which art movement is characterized by its rejection of traditional beauty standards and its embrace of ugliness and the absurd?",
+                options: ["A) Impressionism", "B) Expressionism", "C) Surrealism", "D) Dadaism"],
+                correct: 3,
+                explanation: "Dadaism rejects beauty (from Studocu)."
+            },
+            {
+                question: "Who is considered the father of the Renaissance?",
+                options: ["A) Leonardo da Vinci", "B) Michelangelo", "C) Raphael", "D) Donatello"],
+                correct: 1,
+                explanation: "Michelangelo is Renaissance father (from Studocu)."
+            },
+            {
+                question: "Which type of art is used to represent the natural world realistically?",
+                options: ["A) Abstract", "B) Realism", "C) Impressionism", "D) Surrealism"],
+                correct: 1,
+                explanation: "Realism represents naturally (from Studocu)."
+            },
+            {
+                question: "What is the term used to describe the deliberate use of bright and bold colors in a painting?",
+                options: ["A) Chiaroscuro", "B) Tenebrism", "C) Fauvism", "D) Pointillism"],
+                correct: 2,
+                explanation: "Fauvism uses bold colors (from Studocu)."
+            },
+            {
+                question: "What is the term used to describe the study of the effects of light and shade on the appearance of objects and scenes?",
+                options: ["A) Composition", "B) Perspective", "C) Color theory", "D) Value"],
+                correct: 3,
+                explanation: "Value is light and shade (from Studocu)."
+            },
+            {
+                question: "Which type of art uses symbols and imagery to express ideas, beliefs, and emotions?",
+                options: ["A) Abstract", "B) Realism", "C) Symbolism", "D) Impressionism"],
+                correct: 2,
+                explanation: "Symbolism uses symbols (from Studocu)."
+            },
+            {
+                question: "What is the term used to describe the use of contrasting colors next to each other to create a sense of vibrancy and energy?",
+                options: ["A) Complementary colors", "B) Analogous colors", "C) Monochromatic colors", "D) Triadic colors"],
+                correct: 0,
+                explanation: "Complementary create vibrancy (from Studocu)."
+            },
+            {
+                question: "Which art movement was characterized by its emphasis on capturing a moment in time, often with loose brushwork and light, fleeting colors?",
+                options: ["A) Abstract Expressionism", "B) Impressionism", "C) Futurism", "D) Post-Impressionism"],
+                correct: 1,
+                explanation: "Impressionism captures moments (from Studocu)."
+            },
+            {
+                question: "Which art movement was characterized by its use of sharp lines, geometric shapes, and a limited color palette to create works that often appear mechanical or machine-like?",
+                options: ["A) Futurism", "B) Abstract Expressionism", "C) Surrealism", "D) Constructivism"],
+                correct: 3,
+                explanation: "Constructivism is mechanical (from Studocu)."
+            },
+            {
+                question: "Which type of art uses everyday objects and materials to create works that are meant to challenge the traditional art establishment and its conventions?",
+                options: ["A) Pop Art", "B) Dadaism", "C) Abstract Expressionism", "D) Impressionism"],
+                correct: 0,
+                explanation: "Pop Art uses everyday objects (from Studocu)."
+            },
+            {
+                question: "What is the term used to describe the arrangement of visual elements in a work of art, such as line, shape, and color?",
+                options: ["A) Composition", "B) Perspective", "C) Proportion", "D) Texture"],
+                correct: 0,
+                explanation: "Composition is arrangement (from Studocu)."
+            },
+            {
+                question: "Which art movement was characterized by its focus on capturing the sensations and atmosphere of a moment, often with loose brushwork and light, fleeting colors?",
+                options: ["A) Impressionism", "B) Abstract Expressionism", "C) Surrealism", "D) Futurism"],
+                correct: 0,
+                explanation: "Impressionism captures atmosphere (from Studocu)."
+            },
+            {
+                question: "Which artist is known for his paintings of sunflowers, water lilies, and other natural scenes, often using a loose, impressionistic style?",
+                options: ["A) Pablo Picasso", "B) Vincent van Gogh", "C) Claude Monet", "D) Frida Kahlo"],
+                correct: 1,
+                explanation: "Van Gogh painted sunflowers (from Studocu)."
+            },
+            {
+                question: "What is the term used to describe the deliberate manipulation of size relationships in a work of art, making some objects appear larger or smaller than they would in reality?",
+                options: ["A) Composition", "B) Perspective", "C) Proportion", "D) Value"],
+                correct: 1,
+                explanation: "Perspective manipulates size (from Studocu)."
+            },
+            {
+                question: "Which of the following is a key characteristic of Fauvism?",
+                options: ["A) Use of realistic colors", "B) Focus on emotional expression through color", "C) Emphasis on detailed brushwork", "D) Strong focus on line and form"],
+                correct: 1,
+                explanation: "Fauvism uses emotional color (from Studocu LET Reviewer)."
+            },
+            {
+                question: "What is the primary focus of minimalism in art?",
+                options: ["A) Elaborate decoration", "B) Complex compositions", "C) Realistic representation", "D) Simplicity and reduction of form"],
+                correct: 3,
+                explanation: "Minimalism is simplicity (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which of the following describes the primary purpose of landscape photography?",
+                options: ["A) To document historical events", "B) To capture natural beauty and vastness", "C) To portray human emotions", "D) To create abstract images"],
+                correct: 1,
+                explanation: "Landscape captures beauty (from Studocu LET Reviewer)."
+            },
+            {
+                question: "The artwork \"The Kiss\" by Gustav Klimt is known for its:",
+                options: ["A) Use of monochromatic colors", "B) Focus on landscapes", "C) Realistic depiction of figures", "D) Intricate patterns and gold leaf"],
+                correct: 3,
+                explanation: "Klimt used patterns and gold (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which of the following artists is associated with the development of the color wheel?",
+                options: ["A) Leonardo da Vinci", "B) Johannes Itten", "C) Claude Monet", "D) Wassily Kandinsky"],
+                correct: 1,
+                explanation: "Itten developed color wheel (from Studocu LET Reviewer)."
+            },
+            {
+                question: "The term \"art deco\" is associated with which of the following?",
+                options: ["A) Classical art forms", "B) Surrealist themes", "C) Expressionist movement", "D) A decorative style featuring geometric shapes"],
+                correct: 3,
+                explanation: "Art Deco is geometric (from Studocu LET Reviewer)."
+            },
+            {
+                question: "What does the term \"collage\" refer to in art?",
+                options: ["A) A type of painting technique", "B) The combination of various materials and images", "C) A method of sculpture", "D) The arrangement of text in design"],
+                correct: 1,
+                explanation: "Collage combines materials (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which of the following artists is known for his use of pointillism?",
+                options: ["A) Vincent van Gogh", "B) Georges Seurat", "C) Pierre-Auguste Renoir", "D) Edgar Degas"],
+                correct: 1,
+                explanation: "Seurat used pointillism (from Studocu LET Reviewer)."
+            },
+            {
+                question: "What is the main subject of the artwork \"Guernica\" by Pablo Picasso?",
+                options: ["A) Peace and harmony", "B) Everyday life", "C) Nature and beauty", "D) The horrors of war"],
+                correct: 3,
+                explanation: "Guernica depicts war (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which term refers to a series of related paintings, typically exploring a single theme?",
+                options: ["A) Diptych", "B) Triptych", "C) Series", "D) Portfolio"],
+                correct: 2,
+                explanation: "Series explores theme (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which artist is known for his paintings of sunflowers, water lilies, and other natural scenes, often using a loose, impressionistic style?",
+                options: ["A) Pablo Picasso", "B) Vincent van Gogh", "C) Claude Monet", "D) Frida Kahlo"],
+                correct: 1,
+                explanation: "Van Gogh painted natural scenes (from Studocu)."
+            },
+            {
+                question: "What is the term used to describe the deliberate manipulation of size relationships in a work of art, making some objects appear larger or smaller than they would in reality?",
+                options: ["A) Composition", "B) Perspective", "C) Proportion", "D) Value"],
+                correct: 1,
+                explanation: "Perspective manipulates size (from Studocu)."
+            },
+            {
+                question: "Which of the following is NOT a characteristic of Cubism?",
+                options: ["A) Fragmentation of objects", "B) Use of geometric shapes", "C) Representation of depth through perspective", "D) Multiple viewpoints"],
+                correct: 2,
+                explanation: "Cubism avoids traditional perspective (from Studocu LET Reviewer)."
+            },
+            {
+                question: "The term \"focal point\" in art refers to:",
+                options: ["A) The main area of interest in a composition", "B) The color palette used", "C) The medium chosen for the artwork", "D) The artist's signature"],
+                correct: 0,
+                explanation: "Focal point is interest area (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which of the following movements emphasized the importance of personal expression and emotion in art?",
+                options: ["A) Neoclassicism", "B) Romanticism", "C) Realism", "D) Modernism"],
+                correct: 1,
+                explanation: "Romanticism emphasizes expression (from Studocu LET Reviewer)."
+            },
+            {
+                question: "The use of repetition and patterns in art is primarily used to:",
+                options: ["A) Create chaos", "B) Convey a message", "C) Draw attention to a specific area", "D) Establish rhythm and harmony"],
+                correct: 3,
+                explanation: "Repetition establishes rhythm (from Studocu LET Reviewer)."
+            },
+            {
+                question: "What does \"negative space\" refer to in a composition?",
+                options: ["A) The main subject of the artwork", "B) The area around and between the subjects", "C) The colors used in a painting", "D) The lack of detail in an artwork"],
+                correct: 1,
+                explanation: "Negative space is around subjects (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which artist is renowned for his large-scale sculptures and public installations?",
+                options: ["A) Michelangelo", "B) Henry Moore", "C) Andy Warhol", "D) Salvador Dalí"],
+                correct: 1,
+                explanation: "Moore is for sculptures (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which of the following statements best describes Abstract Art?",
+                options: ["A) It is a realistic representation of objects", "B) It is a reflection of nature", "C) It tells a clear story or narrative", "D) It focuses on color and form rather than specific subjects"],
+                correct: 3,
+                explanation: "Abstract is color and form (from Studocu LET Reviewer)."
+            },
+            {
+                question: "In art, \"composition\" refers to:",
+                options: ["A) The color scheme used", "B) The historical context of the piece", "C) The materials used in the artwork", "D) The arrangement of elements within a work"],
+                correct: 3,
+                explanation: "Composition is arrangement (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which of the following is a characteristic of Baroque art?",
+                options: ["A) Simplicity and clarity", "B) Dramatic use of light and shadow", "C) Focus on nature", "D) Abstraction"],
+                correct: 1,
+                explanation: "Baroque is dramatic light (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which of the following styles is characterized by the use of bright colors and playful forms?",
+                options: ["A) Dada", "B) Art Nouveau", "C) Constructivism", "D) Minimalism"],
+                correct: 1,
+                explanation: "Art Nouveau is playful (from Studocu LET Reviewer)."
+            },
+            {
+                question: "The artwork \"The Scream\" by Edvard Munch is an example of which movement?",
+                options: ["A) Impressionism", "B) Cubism", "C) Surrealism", "D) Expressionism"],
+                correct: 3,
+                explanation: "The Scream is Expressionism (from Studocu LET Reviewer)."
+            },
+            {
+                question: "What is the main focus of performance art?",
+                options: ["A) The physical artwork created", "B) The artist's physical presence and actions", "C) The materials used", "D) The historical context of the performance"],
+                correct: 1,
+                explanation: "Performance is presence (from Studocu LET Reviewer)."
+            },
+            {
+                question: "The concept of \"chiaroscuro\" is most closely associated with:",
+                options: ["A) Color theory", "B) The emotional expression in art", "C) The arrangement of elements", "D) The use of light and dark to create depth"],
+                correct: 3,
+                explanation: "Chiaroscuro is light/dark (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which art movement is characterized by the rejection of tradition and the embrace of the new?",
+                options: ["A) Classical", "B) Modernism", "C) Impressionism", "D) Realism"],
+                correct: 1,
+                explanation: "Modernism embraces new (from Studocu LET Reviewer)."
+            },
+            {
+                question: "The term \"triptych\" refers to:",
+                options: ["A) A painting made up of three panels", "B) An artwork created in three dimensions", "C) A series of artworks", "D) A technique used in sculpture"],
+                correct: 0,
+                explanation: "Triptych is three panels (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which artist is best known for his innovative use of color and light in landscapes?",
+                options: ["A) Georgia O'Keeffe", "B) Claude Monet", "C) Pablo Picasso", "D) Jackson Pollock"],
+                correct: 1,
+                explanation: "Monet used color/light (from Studocu LET Reviewer)."
+            },
+            {
+                question: "What does the term \"installation art\" refer to?",
+                options: ["A) Art that is created in a specific location", "B) Art that is framed and displayed in galleries", "C) Art that focuses on traditional techniques", "D) Art that is created digitally"],
+                correct: 0,
+                explanation: "Installation is location-specific (from Studocu LET Reviewer)."
+            },
+            {
+                question: "The term \"avant-garde\" refers to:",
+                options: ["A) Traditional artistic practices", "B) Innovative and experimental art", "C) Popular art forms", "D) Art that is created for commercial purposes"],
+                correct: 1,
+                explanation: "Avant-garde is experimental (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which of the following best describes the art movement known as Dada?",
+                options: ["A) A reaction against the horrors of war through absurdity", "B) A celebration of classical forms and ideas", "C) A movement focused on realism and detail", "D) A style that emphasizes harmony and balance"],
+                correct: 0,
+                explanation: "Dada is absurdity against war (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which of the following is considered a major characteristic of Romantic art?",
+                options: ["A) Emphasis on rationality", "B) Focus on nature and emotion", "C) Strict adherence to classical forms", "D) Use of geometric shapes"],
+                correct: 1,
+                explanation: "Romantic is nature and emotion (from Studocu LET Reviewer)."
+            },
+            {
+                question: "The term \"mural\" refers to:",
+                options: ["A) A small painting", "B) A decorative wall painting", "C) A sculpture", "D) A type of photography"],
+                correct: 1,
+                explanation: "Mural is wall painting (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which artist is famous for his large-scale, colorful abstract works created using the drip technique?",
+                options: ["A) Mark Rothko", "B) Jackson Pollock", "C) Piet Mondrian", "D) Andy Warhol"],
+                correct: 1,
+                explanation: "Pollock used drip (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which art form is primarily focused on the three-dimensional representation of figures or objects?",
+                options: ["A) Painting", "B) Photography", "C) Printmaking", "D) Sculpture"],
+                correct: 3,
+                explanation: "Sculpture is 3D (from Studocu LET Reviewer)."
+            },
+            {
+                question: "What is the main purpose of a still life painting?",
+                options: ["A) To depict historical events", "B) To showcase inanimate objects", "C) To express human emotion", "D) To represent landscapes"],
+                correct: 1,
+                explanation: "Still life is objects (from Studocu LET Reviewer)."
+            },
+            {
+                question: "The term \"symmetry\" in art refers to:",
+                options: ["A) A lack of balance in a composition", "B) Equal weight and arrangement on both sides", "C) The use of contrasting elements", "D) The depiction of movement"],
+                correct: 1,
+                explanation: "Symmetry is equal (from Studocu LET Reviewer)."
+            },
+            {
+                question: "What is \"fresco\"?",
+                options: ["A) A technique for printing on fabric", "B) A type of landscape painting", "C) A style of sculpture", "D) A method of mural painting on wet plaster"],
+                correct: 3,
+                explanation: "Fresco is on plaster (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which artist is known for his use of pointillism?",
+                options: ["A) Vincent van Gogh", "B) Georges Seurat", "C) Pierre-Auguste Renoir", "D) Edgar Degas"],
+                correct: 1,
+                explanation: "Seurat is pointillism (from Studocu LET Reviewer)."
+            },
+            {
+                question: "What is the main subject of the artwork \"Guernica\" by Pablo Picasso?",
+                options: ["A) Peace and harmony", "B) Everyday life", "C) Nature and beauty", "D) The horrors of war"],
+                correct: 3,
+                explanation: "Guernica is war (from Studocu LET Reviewer)."
+            },
+            {
+                question: "Which term refers to a series of related paintings, typically exploring a single theme?",
+                options: ["A) Diptych", "B) Triptych", "C) Series", "D) Portfolio"],
+                correct: 2,
+                explanation: "Series explores theme (from Studocu LET Reviewer)."
+            },
+            {
+                question: "What is the expression of human creative skill and imagination?",
+                options: ["A) Emphasis", "B) Contour", "C) Art", "D) Dominance"],
+                correct: 2,
+                explanation: "Art is creative (from Scribd LET Reviewer)."
+            },
+            {
+                question: "In what way is art important in daily life?",
+                options: ["A) It has personal significance.", "B) It reflects our society.", "C) It records history.", "D) All of the above."],
+                correct: 3,
+                explanation: "Art is important in multiple ways (from Scribd LET Reviewer)."
+            },
+            {
+                question: "The way to do an art critique is to",
+                options: ["A) describe, analyze, interpret, and evaluate the piece", "B) talk to the artist", "C) decide if it's good", "D) write an artist statement"],
+                correct: 0,
+                explanation: "Critique is four steps (from Scribd LET Reviewer)."
+            },
+            {
+                question: "A person learning a trade or an art from a skilled worker is called",
+                options: ["A) an apprentice", "B) a mentor", "C) a foreman", "D) a laborer"],
+                correct: 0,
+                explanation: "Apprentice learns trade (from Scribd LET Reviewer)."
+            },
+            {
+                question: "A rule used by artists when planning a good composition",
+                options: ["A) \"Rule of Sketch\"", "B) \"Rule of Placement\"", "C) \"Rule of Perspective\"", "D) \"Rule of Thirds\""],
+                correct: 3,
+                explanation: "Rule of Thirds is composition (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Andy Warhol, an American painter and filmmaker, is best known for his depiction of what grocery store item?",
+                options: ["A) Apples", "B) Bacon", "C) Tomato Soup", "D) Onions"],
+                correct: 2,
+                explanation: "Warhol depicted soup (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Andy Warhol's work can best be classified as",
+                options: ["A) realism", "B) pop art", "C) splatter paint", "D) cubism"],
+                correct: 1,
+                explanation: "Warhol is pop art (from Scribd LET Reviewer)."
+            },
+            {
+                question: "A style of artwork created using many geometric shapes, often not resembling any specific object",
+                options: ["A) Surrealism", "B) Fauvism", "C) Cubism", "D) Baroque"],
+                correct: 2,
+                explanation: "Cubism is geometric (from Scribd LET Reviewer)."
+            },
+            {
+                question: "An art style where the artist tries to paint a picture exactly how it looks in real life, with as many details as possible",
+                options: ["A) Impressionism", "B) Pointillism", "C) Realism", "D) Fauvism"],
+                correct: 2,
+                explanation: "Realism is detailed (from Scribd LET Reviewer)."
+            },
+            {
+                question: "A style of art where the artist attempts to convey as much of their emotion into the artwork as possible, often using distortion and bold colors",
+                options: ["A) Expressionism", "B) Surrealism", "C) Cubism", "D) Impressionist"],
+                correct: 0,
+                explanation: "Expressionism is emotion (from Scribd LET Reviewer)."
+            },
+            {
+                question: "The way artwork is arranged is called",
+                options: ["A) emphasis", "B) contour", "C) composition", "D) stylus"],
+                correct: 2,
+                explanation: "Composition is arrangement (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Surrealism is an art movement that used dreamlike imagery",
+                options: ["A) True", "B) False", "C) All of the above", "D) None of the above"],
+                correct: 0,
+                explanation: "Surrealism is dreamlike (from Scribd LET Reviewer)."
+            },
+            {
+                question: "An art style where artwork is extremely detailed and ornate",
+                options: ["A) Surrealism", "B) Baroque", "C) Fauvism", "D) Expressionism"],
+                correct: 1,
+                explanation: "Baroque is ornate (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Pablo Picasso is from the country of",
+                options: ["A) Germany", "B) Italy", "C) Spain", "D) United States of America"],
+                correct: 2,
+                explanation: "Picasso is Spanish (from Scribd LET Reviewer)."
+            },
+            {
+                question: "What is the title of the style of painting that Picasso invented?",
+                options: ["A) Realism", "B) Impressionism", "C) Cubism", "D) Art Nouveau"],
+                correct: 2,
+                explanation: "Cubism by Picasso (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Where is the \"Mona Lisa\" hanging in France?",
+                options: ["A) Gargoyle square", "B) The Louvre", "C) The Eiffel Tower", "D) Chartres Cathedral"],
+                correct: 1,
+                explanation: "Louvre (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Van Gogh's most famous work of art to this day",
+                options: ["A) \"The Mona Lisa\"", "B) \"The Scream\"", "C) \"Starry Night\"", "D) \"Poppies\""],
+                correct: 2,
+                explanation: "Starry Night (from Scribd LET Reviewer)."
+            },
+            {
+                question: "What country was Van Gogh born in?",
+                options: ["A) Holland", "B) France", "C) Spain", "D) United States of America"],
+                correct: 0,
+                explanation: "Holland (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Georgia O'Keeffe was an __________ artist",
+                options: ["A) English", "B) Italian", "C) American", "D) Australian"],
+                correct: 2,
+                explanation: "American (from Scribd LET Reviewer)."
+            },
+            {
+                question: "O'Keeffe is best known for her paintings of",
+                options: ["A) the sea and marine animals", "B) enlarged flowers and New Mexico landscapes", "C) native American Indians", "D) the Australian Outback"],
+                correct: 1,
+                explanation: "Flowers and landscapes (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Salvador Dali is considered a Surrealist",
+                options: ["A) True", "B) False", "C) All of the above", "D) None of the above"],
+                correct: 0,
+                explanation: "True (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Salvador Dali was born in Spain",
+                options: ["A) True", "B) False", "C) All of the above", "D) None of the above"],
+                correct: 1,
+                explanation: "False (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Rembrandt is known as an artist of what style?",
+                options: ["A) Impressionists", "B) Baroque", "C) Modern", "D) Prehistoric"],
+                correct: 1,
+                explanation: "Baroque (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Rembrandt, considered one of the greatest painters and printmakers in European art, was born in what country?",
+                options: ["A) Netherlands", "B) Switzerland", "C) France", "D) Spain"],
+                correct: 0,
+                explanation: "Netherlands (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Monet is the father of which movement?",
+                options: ["A) Realism", "B) Impressionism", "C) Cubism", "D) Art Nouveau"],
+                correct: 1,
+                explanation: "Impressionism (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Where did Monet grow up?",
+                options: ["A) Holland", "B) England", "C) France", "D) United States of America"],
+                correct: 2,
+                explanation: "France (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Georges Seurat, the artist who created the painting \"Sunday Afternoon on the Island of La Grande Jatte,\" used which method of art?",
+                options: ["A) Cubism", "B) Pointillism", "C) Abstract", "D) Dadaism"],
+                correct: 1,
+                explanation: "Pointillism (from Scribd LET Reviewer)."
+            },
+            {
+                question: "\"Mona Lisa\" was painted by",
+                options: ["A) Vincent van Gogh", "B) Claude Monet", "C) Picasso", "D) Leonardo da Vinci"],
+                correct: 3,
+                explanation: "Da Vinci (from Scribd LET Reviewer)."
+            },
+            {
+                question: "\"Sunflowers\" was painted by",
+                options: ["A) Pierre-August Renoir", "B) Vincent van Gogh", "C) Johannes Vermeer", "D) Michelangelo"],
+                correct: 1,
+                explanation: "Van Gogh (from Scribd LET Reviewer)."
+            },
+            {
+                question: "\"Poppies in a Field\" was painted by",
+                options: ["A) Claude Monet", "B) Leonardo da Vinci", "C) Rene Magritte", "D) Johannes Vermeer"],
+                correct: 0,
+                explanation: "Monet (from Scribd LET Reviewer)."
+            },
+            {
+                question: "\"The Scream\" was painted by",
+                options: ["A) Vincent van Gogh", "B) Pierre-August Renoir", "C) Edvard Munch", "D) Claude Monet"],
+                correct: 2,
+                explanation: "Munch (from Scribd LET Reviewer)."
+            },
+            {
+                question: "\"The Last Supper\" was painted by",
+                options: ["A) Leonardo da Vinci", "B) Pierre-August Renoir", "C) Edvard Munch", "D) Michelangelo"],
+                correct: 0,
+                explanation: "Da Vinci (from Scribd LET Reviewer)."
+            },
+            {
+                question: "\"Dance at Le Moulin de la Galette\" was painted by",
+                options: ["A) Rene Magritte", "B) Picasso", "C) Pierre-Auguste Renoir", "D) Johannes Vermeer"],
+                correct: 2,
+                explanation: "Renoir (from Scribd LET Reviewer)."
+            },
+            {
+                question: "\"Girl with a Pearl Earring\" was painted by",
+                options: ["A) Picasso", "B) Johannes Vermeer", "C) Michelangelo", "D) Edvard Munch"],
+                correct: 1,
+                explanation: "Vermeer (from Scribd LET Reviewer)."
+            },
+            {
+                question: "\"Dance Class\" was painted by",
+                options: ["A) Claude Monet", "B) Leonardo da Vinci", "C) Edgar Degas", "D) Rene Magritte"],
+                correct: 2,
+                explanation: "Degas (from Scribd LET Reviewer)."
+            },
+            {
+                question: "\"Creation of Adam\" was painted by",
+                options: ["A) Michelangelo", "B) Johannes Vermeer", "C) Pierre-August Renoir", "D) Leonardo da Vinci"],
+                correct: 0,
+                explanation: "Michelangelo (from Scribd LET Reviewer)."
+            },
+            {
+                question: "\"The Persistence of Memory\" was painted by",
+                options: ["A) Johannes Vermeer", "B) Pierre-August Renoir", "C) Salvador Dali", "D) Leonardo da Vinci"],
+                correct: 2,
+                explanation: "Dali (from Scribd LET Reviewer)."
+            },
+            {
+                question: "What does a color wheel show?",
+                options: ["A) Complementary colors", "B) Analogous colors", "C) Primary colors", "D) All of the above"],
+                correct: 3,
+                explanation: "All color relationships (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Movement in art where hundreds of dots are used to create a picture",
+                options: ["A) Pointillism", "B) Impressionism", "C) Realism", "D) Abstract"],
+                correct: 0,
+                explanation: "Pointillism (from Scribd LET Reviewer)."
+            },
+            {
+                question: "The artist Edgar Degas was best known for his paintings of waterlilies",
+                options: ["A) True", "B) False", "C) All of the above", "D) None of the above"],
+                correct: 1,
+                explanation: "False (from Scribd LET Reviewer)."
+            },
+            {
+                question: "Edward Degas was a nineteenth-century French artist famous for his paintings, sculptures, prints, and drawings",
+                options: ["A) True", "B) False", "C) All of the above", "D) None of the above"],
+                correct: 0,
+                explanation: "True (from Scribd LET Reviewer)."
+            }
+        ];
+
+        // Initialize quiz
+        function initQuiz() {
+            const container = document.getElementById('quiz-container');
+            const progress = document.getElementById('progress');
+            
+            progress.textContent = `Question 1 of ${quizData.length}`;
+            
+            quizData.forEach((item, index) => {
+                const card = createQuestionCard(item, index);
+                container.appendChild(card);
+            });
+        }
+
+        function createQuestionCard(data, index) {
+            const card = document.createElement('section');
+            card.className = 'question-card';
+            card.setAttribute('role', 'region');
+            card.setAttribute('aria-label', `Question ${index + 1}`);
+            
+            const questionNumber = document.createElement('span');
+            questionNumber.className = 'question-number';
+            questionNumber.textContent = `Question ${index + 1}`;
+            
+            const questionText = document.createElement('h2');
+            questionText.className = 'question-text';
+            questionText.textContent = data.question;
+            
+            const optionsContainer = document.createElement('div');
+            optionsContainer.className = 'options-container';
+            optionsContainer.setAttribute('role', 'radiogroup');
+            optionsContainer.setAttribute('aria-label', 'Answer options');
+            
+            data.options.forEach((option, optIndex) => {
+                const optionEl = createOption(option, optIndex, data.correct, index);
+                optionsContainer.appendChild(optionEl);
+            });
+            
+            const explanation = document.createElement('div');
+            explanation.className = 'explanation';
+            explanation.id = `explanation-${index}`;
+            explanation.setAttribute('role', 'region');
+            explanation.setAttribute('aria-label', 'Explanation');
+            
+            const explanationLabel = document.createElement('div');
+            explanationLabel.className = 'explanation-label';
+            explanationLabel.textContent = 'Explanation';
+            
+            const explanationText = document.createElement('div');
+            explanationText.className = 'explanation-text';
+            explanationText.textContent = data.explanation;
+            
+            explanation.appendChild(explanationLabel);
+            explanation.appendChild(explanationText);
+            
+            card.appendChild(questionNumber);
+            card.appendChild(questionText);
+            card.appendChild(optionsContainer);
+            card.appendChild(explanation);
+            
+            return card;
+        }
+
+        function createOption(text, index, correctIndex, questionIndex) {
+            const option = document.createElement('div');
+            option.className = 'option';
+            option.setAttribute('role', 'radio');
+            option.setAttribute('tabindex', '0');
+            option.setAttribute('aria-checked', 'false');
+            option.dataset.correct = index === correctIndex;
+            option.dataset.questionIndex = questionIndex;
+            
+            const letter = document.createElement('span');
+            letter.className = 'option-letter';
+            letter.textContent = String.fromCharCode(65 + index);
+            
+            const textSpan = document.createElement('span');
+            textSpan.className = 'option-text';
+            textSpan.textContent = text;
+            
+            const statusIcon = document.createElement('span');
+            statusIcon.className = 'status-icon';
+            statusIcon.innerHTML = option.dataset.correct === 'true' 
+                ? '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>'
+                : '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+            
+            option.appendChild(letter);
+            option.appendChild(textSpan);
+            option.appendChild(statusIcon);
+            
+            // Double-click handler
+            option.addEventListener('dblclick', handleSelection);
+            
+            // Keyboard handler
+            option.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleSelection.call(option);
+                }
+            });
+            
+            // Single click handler for accessibility
+            option.addEventListener('click', function() {
+                // Visual feedback for single click
+                this.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 100);
+            });
+            
+            return option;
+        }
+
+        function handleSelection() {
+            const option = this;
+            const questionIndex = option.dataset.questionIndex;
+            const isCorrect = option.dataset.correct === 'true';
+            const card = option.closest('.question-card');
+            const allOptions = card.querySelectorAll('.option');
+            const explanation = card.querySelector('.explanation');
+            
+            // Check if already answered
+            if (card.dataset.answered === 'true') return;
+            
+            // Mark as answered
+            card.dataset.answered = 'true';
+            
+            // Disable all options
+            allOptions.forEach(opt => {
+                opt.classList.add('disabled');
+                opt.setAttribute('aria-disabled', 'true');
+            });
+            
+            if (isCorrect) {
+                // Correct answer
+                option.classList.add('correct');
+                option.setAttribute('aria-checked', 'true');
+                playSuccessSound();
+            } else {
+                // Incorrect answer
+                option.classList.add('incorrect');
+                playErrorSound();
+                
+                // Find and highlight correct answer
+                const correctOption = Array.from(allOptions).find(opt => opt.dataset.correct === 'true');
+                if (correctOption) {
+                    correctOption.classList.add('correct');
+                    correctOption.setAttribute('aria-checked', 'true');
+                }
+                
+                // Remove red highlight after 5 seconds
+                setTimeout(() => {
+                    option.classList.remove('incorrect');
+                }, 5000);
+            }
+            
+            // Show explanation
+            setTimeout(() => {
+                explanation.classList.add('visible');
+            }, 300);
+        }
+
+        function playSuccessSound() {
+            const audio = document.getElementById('success-sound');
+            audio.currentTime = 0;
+            audio.play().catch(e => console.log('Audio play failed:', e));
+        }
+
+        function playErrorSound() {
+            const audio = document.getElementById('error-sound');
+            audio.currentTime = 0;
+            audio.play().catch(e => console.log('Audio play failed:', e));
+        }
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', initQuiz);
+    </script>
+</body>
+</html>
+    
+  </body>
+  
+</html>
